@@ -8,9 +8,11 @@ import itertools
 import gzip
 
 def GetAllKmers(k):
+    """Function that calculates all possible combinations of ACGTS of k size."""
     return([''.join(combination) for combination in itertools.product(['A','C','G','T'], repeat=k)])
 
 def GetContig(genome_file, contig_size):
+    """Selects randomly a contig of size contig_size in the genome of the genome_file."""
     with gzip.open(genome_file, "rt") as handle:
         parsed_fasta = list(SeqIO.parse(handle, "fasta"))
         genome_size = False
@@ -23,7 +25,8 @@ def GetContig(genome_file, contig_size):
         start_index = np.random.randint(0,len(random_genome_sequence)-contig_size)
         return(str(random_genome_sequence[start_index:start_index+contig_size]))
 
-def GetKmerSpectrum(group, contig, kmers):
+def GetKmerCounts(group, contig, kmers):
+    """Counts the occurence of each kmers in a contig."""
     counts_dict = {'Group': group}
     for kmer in kmers:
         counts_dict[kmer] = contig.count(kmer)
@@ -53,20 +56,25 @@ def main():
     print(euk_genomes)
 
     kmers = GetAllKmers(k)
+    # initiate pandas data frame
     counts_dict = pd.DataFrame(columns=['Group'] + kmers)
     count = 0
     for i in range(sample_size):
         print('Sample number: ' + str(count), end = '\r')
-
+        
+        # Randomly sample one genome from the files lists
         euk_genome_file = random.sample(euk_genomes, 1)[0]
         pro_genome_file = random.sample(pro_genomes, 1)[0]
-
+        
+        # Get randomly a contig of size contig_size in the genome (using Bio's SeqIO interface to deal with DNA data)
         euk_contig = GetContig(euk_genome_file, contig_size)
         pro_contig = GetContig(pro_genome_file, contig_size)
-
-        euk_row = GetKmerSpectrum('Eukaryote' , euk_contig, kmers)
-        pro_row = GetKmerSpectrum('Prokaryote', pro_contig, kmers)
-
+        
+        # Get the kounts of each kmers in the contigs, create dict to append to the pandas dataframe.
+        euk_row = GetKmerCounts('Eukaryote' , euk_contig, kmers)
+        pro_row = GetKmerCounts('Prokaryote', pro_contig, kmers)
+        
+        # Append dict counts
         counts_dict = counts_dict.append(euk_row, ignore_index=True)
         counts_dict = counts_dict.append(pro_row, ignore_index=True)
 
