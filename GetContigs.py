@@ -60,6 +60,9 @@ def main():
     counts_dict = pd.DataFrame(columns=['Group'] + kmers)
     count = 0
     for i in range(sample_size):
+        count +=1
+        if count > sample_size:
+            break
         print('Sample number: ' + str(count), end = '\r')
         
         # Randomly sample one genome from the files lists
