@@ -8,7 +8,7 @@ import itertools
 import gzip
 
 def GetAllKmers(k):
-    """Function that calculates all possible combinations of ACGTS of k size."""
+    """Function that calculates all possible combinations of ACGTs of k size."""
     return([''.join(combination) for combination in itertools.product(['A','C','G','T'], repeat=k)])
 
 def GetContig(genome_file, contig_size):
