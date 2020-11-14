@@ -13,7 +13,7 @@ def load_csv_data(data_path, n_min = 1000):
     y[np.where(labels=='Prokaryote')] = 0
 
     # Remove rows having less than n_min count and change counts to frequencies
-    print('Removing rows with less than n_min counts...')
+    print('Removing rows with less than {n} counts...'.format(n=n_min))
     to_delete = [i for i in range(X.shape[0]) if np.sum(X[i,]) < n_min]
     y   = np.delete(y,   to_delete, axis=0)
     ids = np.delete(ids, to_delete, axis=0)
