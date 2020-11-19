@@ -28,11 +28,8 @@ def visualisation():
 	(graph, ) = pydot.graph_from_dot_file('small_tree.dot')
 	graph.write_png('small_tree.png')
 
-def tune_hyperparam():
-	nb_trees = [10, 100, 1000]
-	max_depth = [3, 10, None]
-
-	for d in max_depth:
+def grid_search(nb_trees, depths):
+	for d in depths:
 		for n in nb_trees:
 			print('Forest of {n} trees of maximum depth {d}'.format(n=n, d=d))
 
@@ -50,7 +47,10 @@ def tune_hyperparam():
 			accuracy = accuracy_score(y_test, y_pred)
 			print('\taccuracy =', round(accuracy, 5))
 
+nb_trees = [100, 500, 1000]
+depths = [7, 10, 13]
 
+grid_search(nb_trees, depths)
 
 # print(classification_report(y_test, y_pred, labels=[0, 1], target_names=['Eukaryote', 'Prokaryote']))
 
