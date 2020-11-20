@@ -13,24 +13,41 @@ y, X, ids = load_csv_data(data_path = 'small_train.csv')
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
 kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-gamma_range = np.logspace(-5, 5, num = 20)
-c_range = np.logspace(-2, 10, num = 20)
+gamma_range = np.logspace(-5, 5, num = 5)
+c_range = np.logspace(-2, 10, num = 5)
+
+def fit_classifier(classifier, X_train, y_train, X_test, y_test):
+    classif.fit(X_train, y_train)
+    pred = classif.predict(y_test)
+    accuracy = accuracy_score(y_test, pred)
+    return accuracy, pred
+
+def find_best_rbf(X_train, y_train, X_test, y_test):
+    best_accuracy = 0
+    for c in c_range:
+        for g in g_range:
+            classif = SVC(C = c, gamma = g)
+            accuracy, pred = fit_classifier(classif, X_train, y_train, X_test, y_test)
+            if(accuracy > best_accuracy):
+                best_accuracy = accuracy
+                best_classifier = classif
+                best_pred = pred
+    return best_classifier, best_accuracy, best_pred
+    
 
 def tune_methods(X_train, y_train, X_test, y_test):
     best_accuracy = 0
-    best_classifier
-    best_pred
     for kern in kernels:
-        classif = SVC(kernel = kern)
         
-        print(testing)
+        print("testing svm with kernel ", kern)
             
         if(kern == 'rbf'):
-            #tune rbf params
+            #tune rbf params with grid search
+            classif, accuracy, pred = find_best_rbf(X_train, y_train, X_test, y_test)
+        else:
+            classif = SVC(kernel = kern)
+            accuracy, pred = fit_classif(classif, X_train, y_train, X_test, y_test)
             
-        classif.fit(X_train, y_train)
-        pred = classif.predict(y_test)
-        accuracy = accuracy_score(y_test, pred)
         if(accuracy > best_accuracy):
             best_accuracy = accuracy
             best_classifier = classif
