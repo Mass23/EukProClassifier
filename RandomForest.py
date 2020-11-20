@@ -2,56 +2,59 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from helpers import *
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
-from sklearn.tree import export_graphviz
-from time import time
-import pydot
+from sklearn.metrics import make_scorer
 
 
-seed = 42
+def euk_accuracy(y_test, y_pred):
+    matrix = confusion_matrix(y_test, y_pred)
+    class_ac = matrix.diagonal() / matrix.sum(axis=1)
+    return class_ac[1]
 
-# load data
-y, X, ids = load_csv_data("Counts_n10000_k5_s5000.csv")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
+def pro_accuracy(y_test, y_pred):
+    matrix = confusion_matrix(y_test, y_pred)
+    class_ac = matrix.diagonal() / matrix.sum(axis=1)
+    return class_ac[0]
 
+def grid_search_RF(X, y, seed, n_jobs, cv=5, verbose=None):
+	'''
+	Performs a cross validation grid search of RandomForestClassifiers
+	for different number of trees of different maximum depth. It computes
+	the global accuracy, as well as the accuracy of each class. The learning time
+	of each method is also stored.
 
-# visualisation of 1 small tree
-def visualisation():
-	rf_small = RandomForestClassifier(n_estimators=10, max_depth=3)
-	rf_small.fit(X_train, y_train)
-	tree_small = rf_small.estimators_[5]
-	export_graphviz(tree_small, out_file = 'small_tree.dot', rounded=True, precision=1)
-	(graph, ) = pydot.graph_from_dot_file('small_tree.dot')
-	graph.write_png('small_tree.png')
+	:return: panda DataFrame containing the cross-validation accuracy and the mean time used to learn
+	'''
+	# define the grids and the scoring functions
+	nb_trees = [10, 100, 500, 1000]
+	depths = [5, 10, 15, 20, None]
+	param_grid = {'n_estimators': nb_trees, 'max_depth':depths}
+	scorings = {'accuracy': make_scorer(accuracy_score),
+			'eukaryote_accuracy':make_scorer(euk_accuracy),
+			'procaryote_accuracy':make_scorer(pro_accuracy)}
 
-def grid_search(nb_trees, depths):
-	for d in depths:
-		for n in nb_trees:
-			print('Forest of {n} trees of maximum depth {d}'.format(n=n, d=d))
+	# perform the grid search
+	rf = RandomForestClassifier(random_state=seed, n_jobs=n_jobs)
+	grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=cv,
+								scoring=scorings, refit='accuracy', verbose=verbose)
+	grid_search.fit(X, y)
 
-			# learning
-			rf = RandomForestClassifier(n_estimators=n, max_depth=d, random_state=seed)
-			t1 = time()
-			rf.fit(X_train, y_train);
-			t2 = time()
-			print('\tlearning time =', round(t2 - t1, 5))
+	# store the result
+	df = pd.DataFrame(columns=['n_estimators', 'max_depth', 'accuracy',
+					'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
+	for i, trial in enumerate(grid_search.cv_results_['params']):
+		trial = results['params'][i]
+		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
+		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
+		trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]
+		trial['eukaryote accuracy'] = grid_search.cv_results_['mean_test_eukaryote_accuracy'][i]
+		df = df.append(trial, ignore_index=True)
 
-			# prediction
-			y_pred = rf.predict(X_test)
+	df['n_estimators'] = df['n_estimators'].astype(int)
+	df['max_depth'] = df['max_depth'].astype(int)
 
-			# error
-			accuracy = accuracy_score(y_test, y_pred)
-			print('\taccuracy =', round(accuracy, 5))
-
-nb_trees = [100, 500, 1000]
-depths = [7, 10, 13]
-
-grid_search(nb_trees, depths)
-
-# print(classification_report(y_test, y_pred, labels=[0, 1], target_names=['Eukaryote', 'Prokaryote']))
-
-
+	return df
