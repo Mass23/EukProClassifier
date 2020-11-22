@@ -20,7 +20,7 @@ def pro_accuracy(y_test, y_pred):
     class_ac = matrix.diagonal() / matrix.sum(axis=1)
     return class_ac[0]
 
-def grid_search_RF(X, y, seed, n_jobs, cv=5, verbose=None):
+def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
 	'''
 	Performs a cross validation grid search of RandomForestClassifiers
 	for different number of trees of different maximum depth. It computes
@@ -29,10 +29,13 @@ def grid_search_RF(X, y, seed, n_jobs, cv=5, verbose=None):
 
 	:return: panda DataFrame containing the cross-validation accuracy and the mean time used to learn
 	'''
-	# define the grids and the scoring functions
-	nb_trees = [10, 100, 500, 1000]
-	depths = [5, 10, 15, 20, None]
+	# define the grids
+	nb_trees = [10, 100]
+	depths = [5, 10, 15, 20, 50]
 	param_grid = {'n_estimators': nb_trees, 'max_depth':depths}
+
+	print(nb_trees)
+	# define the scoring functions
 	scorings = {'accuracy': make_scorer(accuracy_score),
 			'eukaryote_accuracy':make_scorer(euk_accuracy),
 			'procaryote_accuracy':make_scorer(pro_accuracy)}
@@ -43,11 +46,11 @@ def grid_search_RF(X, y, seed, n_jobs, cv=5, verbose=None):
 								scoring=scorings, refit='accuracy', verbose=verbose)
 	grid_search.fit(X, y)
 
-	# store the result
+	# store the result in a dataframe
 	df = pd.DataFrame(columns=['n_estimators', 'max_depth', 'accuracy',
 					'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
 	for i, trial in enumerate(grid_search.cv_results_['params']):
-		trial = results['params'][i]
+		trial = grid_search.cv_results_['params'][i]
 		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
 		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
 		trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]
