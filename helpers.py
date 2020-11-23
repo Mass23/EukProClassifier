@@ -25,3 +25,13 @@ def load_csv_data(data_path, n_min = 1000):
 
     print('Data loaded!')
     return y, X, ids
+
+def euk_accuracy(y_test, y_pred):
+    matrix = confusion_matrix(y_test, y_pred)
+    class_ac = matrix.diagonal() / matrix.sum(axis=1)
+    return class_ac[1]
+
+def pro_accuracy(y_test, y_pred):
+    matrix = confusion_matrix(y_test, y_pred)
+    class_ac = matrix.diagonal() / matrix.sum(axis=1)
+    return class_ac[0]

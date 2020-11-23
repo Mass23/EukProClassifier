@@ -10,22 +10,11 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import make_scorer
 
-
-def euk_accuracy(y_test, y_pred):
-    matrix = confusion_matrix(y_test, y_pred)
-    class_ac = matrix.diagonal() / matrix.sum(axis=1)
-    return class_ac[1]
-
-def pro_accuracy(y_test, y_pred):
-    matrix = confusion_matrix(y_test, y_pred)
-    class_ac = matrix.diagonal() / matrix.sum(axis=1)
-    return class_ac[0]
-
 def plot(df):
 	depths = df['max_depth'].unique()
 	nb_trees = df['n_estimators'].unique()
 
-	fig, axs = plt.subplots(len(nb_trees), sharex=True, figsize=(8,10))
+	fig, axs = plt.subplots(len(nb_trees), figsize=(1+len(depths), 4*len(nb_trees)), constrained_layout=True)
 	fig.suptitle('RandomForest accuracies for different forest sizes and different maximum tree depths', fontsize=20)
 
 	for i, n in enumerate(nb_trees):
@@ -61,15 +50,12 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
 	:return: panda DataFrame containing the cross-validation accuracy and the mean time used to learn
 	'''
 	# define the grids
-	nb_trees = [20, 100, 200]
+	nb_trees = [20, 80, 100, 150, 200]
 	depths = [5, 10, 15, 20, 35, 50]
+# cannot have None value because of df.astype(int) ==> to handle
 	# nb_trees = [10, 20]
 	# depths = [5, 7]
 	param_grid = {'n_estimators': nb_trees, 'max_depth':depths}
-
-	print(nb_trees)
-	print(depths)
-# à enlever
 
 	# define the scoring functions
 	scorings = {'accuracy': make_scorer(accuracy_score),
@@ -87,8 +73,8 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
 					'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
 	for i, trial in enumerate(grid_search.cv_results_['params']):
 		trial = grid_search.cv_results_['params'][i]
-		trial['n_estimators'] = int(trial['n_estimators'])
-		trial['max_depth'] = int(trial['max_depth']) if trial['max_depth'] else trial['max_depth']
+		# trial['n_estimators'] = int(trial['n_estimators'])
+		# trial['max_depth'] = int(trial['max_depth']) if trial['max_depth'] else trial['max_depth']
 
 		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
 		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
@@ -97,6 +83,8 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
 
 		df = df.append(trial, ignore_index=True)
 
-	plot(df)
+	df['n_estimators'] = df['n_estimators'].astype(int)
+	df['max_depth'] = df['max_depth'].astype(int)
 
+	plot(df)
 	return df
