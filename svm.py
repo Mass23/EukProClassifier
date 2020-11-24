@@ -4,59 +4,81 @@ from helpers import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import make_scorer
 from sklearn import svm
 from sklearn.svm import SVC
 
-seed = 42
-# Load data
-y, X, ids = load_csv_data(data_path = 'small_train.csv')
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
-kernels = ['linear', 'poly', 'rbf', 'sigmoid']
-gamma_range = np.logspace(-5, 5, num = 5)
-c_range = np.logspace(-2, 10, num = 5)
+def plot(df):
+	cs = df['C'].unique()
+	gammas = df['gamma'].unique()
 
-def fit_classifier(classifier, X_train, y_train, X_test, y_test):
-    classif.fit(X_train, y_train)
-    pred = classif.predict(y_test)
-    accuracy = accuracy_score(y_test, pred)
-    return accuracy, pred
+	fig, axs = plt.subplots(len(cs), figsize=(1+len(depths), 4*len(nb_trees)), constrained_layout=True)
+	fig.suptitle('Suppport Vector Machine accuracies for different values of C and gamma parameters', fontsize=20)
 
-def find_best_rbf(X_train, y_train, X_test, y_test):
-    best_accuracy = 0
-    for c in c_range:
-        for g in g_range:
-            classif = SVC(C = c, gamma = g)
-            accuracy, pred = fit_classifier(classif, X_train, y_train, X_test, y_test)
-            if(accuracy > best_accuracy):
-                best_accuracy = accuracy
-                best_classifier = classif
-                best_pred = pred
-    return best_classifier, best_accuracy, best_pred
+	for i, c in enumerate(cs):
+		axs[i].set_title('SVM with C = {}'.format(c), fontsize=16)
+
+		glo_acc = df.loc[df['C'] == c]['accuracy'].to_numpy()
+		euk_acc = df.loc[df['C'] == c]['eukaryote accuracy'].to_numpy()
+		pro_acc = df.loc[df['C'] == c]['procaryote accuracy'].to_numpy()
+		time = df.loc[df['C'] == c]['learning time'].to_numpy()
+
+		axs[i].plot(gammas, glo_acc, color="red", marker='o', label='Accuracy global')
+		axs[i].plot(gammas, euk_acc, color="orange", marker="o", label='Accuracy on eukaryotes')
+		axs[i].plot(gammas, pro_acc, color="yellow", marker="o", label='Accuracy on prokaryotes')
+		axs[i].set_xlabel("gamma",fontsize=14)
+		axs[i].set_ylabel("Accuracy", fontsize=14)
+
+		ax2 = axs[i].twinx()
+		ax2.plot(gammas, time, color="blue", marker="^")
+		ax2.set_ylabel("Learning time [sec]",color="blue",fontsize=14)
+
+		axs[i].legend()
+
+	plt.show()
+	fig.savefig('SVM_C_gamma.pdf', bbox_inches='tight')
     
+def grid_search_SVC(X, y, n_jobs=None, cv=5, verbose=0):
+    '''
+    Performs a cross validation grid search of SVC for different values of 
+    parameters C and gamma. It computes the global accuracy, as well as the
+    accuracy of each class. The learning time of each method is also stored.
 
-def tune_methods(X_train, y_train, X_test, y_test):
-    best_accuracy = 0
-    for kern in kernels:
-        
-        print("testing svm with kernel ", kern)
-            
-        if(kern == 'rbf'):
-            #tune rbf params with grid search
-            classif, accuracy, pred = find_best_rbf(X_train, y_train, X_test, y_test)
-        else:
-            classif = SVC(kernel = kern)
-            accuracy, pred = fit_classif(classif, X_train, y_train, X_test, y_test)
-            
-        if(accuracy > best_accuracy):
-            best_accuracy = accuracy
-            best_classifier = classif
-            best_pred = pred
-        
-        return best_classifier, best_accuracy, best_pred
-    
-#script - find best classifier, predict labels 
-best_svm, best_acc, preds = tune_methods(X_train, y_train, X_test, y_test)
-print(classification_report(y_test, y_pred, labels=[0, 1], target_names=['Eukaryote', 'Prokaryote']))              
-                
-            
+    :return: panda DataFrame containing the cross-validation accuracy and the mean time used to learn
+    '''
+    # define the ranges
+    c_range = np.logspace(-2, 10, num = 5) ####check ranges
+    gamma_range = np.logspace(-5, 10, num = 5)
+    param_grid = {'C': c_range, 'gamma':gamma_range}
+
+    # define the scoring functions
+    scorings = {'accuracy': make_scorer(accuracy_score),
+            'eukaryote_accuracy':make_scorer(euk_accuracy),
+            'procaryote_accuracy':make_scorer(pro_accuracy)}
+
+    # grid search
+    svc = svm.SVC()
+    grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv,
+                                scoring=scorings, refit='accuracy', verbose=verbose)
+    grid_search.fit(X, y)
+
+    # store the results in a dataframe
+    df = pd.DataFrame(columns=['C', 'gamma', 'accuracy',
+                    'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
+    for i, trial in enumerate(grid_search.cv_results_['params']):
+        trial = grid_search.cv_results_['params'][i]
+        trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
+        trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
+        trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]
+        trial['eukaryote accuracy'] = grid_search.cv_results_['mean_test_eukaryote_accuracy'][i]
+
+        df = df.append(trial, ignore_index=True)
+
+    df['C'] = df['C'].astype(int)
+    df['gamma'] = df['gamma'].astype(int)
+
+    plot(df)
+    return df
