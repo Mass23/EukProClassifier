@@ -77,8 +77,5 @@ def grid_search_SVC(X, y, n_jobs=None, cv=5, verbose=0):
 
         df = df.append(trial, ignore_index=True)
 
-    df['C'] = df['C'].astype(int)
-    df['gamma'] = df['gamma'].astype(int)
-
     plot(df)
     return df
