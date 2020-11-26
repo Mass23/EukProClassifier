@@ -1,14 +1,14 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
-def CLR_transform(X):
+def CLR_transform(X, scale):
     minval = np.min(X[np.nonzero(X)])
-    X[X == 0] = minval * 0.65
+    X[X == 0] = minval * scale
     X = np.log(X)
     X = X - np.mean(X, axis = 0)
     return(X)
 
-def load_csv_data(data_path, n_min = 1000, CLR = True):
+def load_csv_data(data_path, n_min = 1000, CLR_scale=None):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
     print('Loading data...')
     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
@@ -27,21 +27,17 @@ def load_csv_data(data_path, n_min = 1000, CLR = True):
     ids = np.delete(ids, to_delete, axis=0)
     X   = np.delete(X,   to_delete, axis=0)
 
-    #print('Counts to frequencies...')
-    #row_sums = np.sum(X, axis = 0)
-    #X = X / X.sum(axis=1, keepdims=True)
-    if CLR == True:
+    if CLR_scale:
         print('Counts to CLR transformed...')
-        X = CLR_transform(X)
+        X = CLR_transform(X, CLR_scale)
 
         print('Data loaded!')
         return yb, X, ids
 
-    else:
-        print('Counts to frequencies...')
-        X = X / X.sum(axis=1, keepdims=True)
-        print('Data loaded!')
-        return yb, X, ids
+    print('Counts to frequencies...')
+    X = X / X.sum(axis=1, keepdims=True)
+    print('Data loaded!')
+    return yb, X, ids
 
 def euk_accuracy(y_test, y_pred):
     matrix = confusion_matrix(y_test, y_pred)
