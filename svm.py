@@ -3,7 +3,7 @@ import numpy as np
 from helpers import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import make_scorer
@@ -55,7 +55,7 @@ def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0):
     param_grid = {'C': c_range, 'gamma':gamma_range}
 
     # define the scoring functions
-    scorings = {'accuracy': make_scorer(accuracy_score),
+    scorings = {'accuracy': make_scorer(balanced_accuracy_score),
             'eukaryote_accuracy':make_scorer(euk_accuracy),
             'procaryote_accuracy':make_scorer(pro_accuracy)}
 

@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 def CLR_transform(X, scale):
-    assert 0 < CLR_scale and CLR_scale < 1
+    assert 0 < scale and scale < 1
     minval = np.min(X[np.nonzero(X)])
     X[X == 0] = minval * scale
     X = np.log(X)

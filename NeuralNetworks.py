@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
 def plot_NN(df):
@@ -40,7 +40,7 @@ def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=None):
 	param_grid = {'hidden_layer_sizes': hidden_layer_size}
 
 	# define the scoring functions
-	scorings = {'accuracy': make_scorer(accuracy_score),
+	scorings = {'accuracy': make_scorer(balanced_accuracy_score),
 			'eukaryote_accuracy':make_scorer(euk_accuracy),
 			'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
@@ -55,9 +55,6 @@ def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=None):
 					'prokaryote accuracy', 'eukaryote accuracy', 'learning time'])
 	for i, trial in enumerate(grid_search.cv_results_['params']):
 		trial = grid_search.cv_results_['params'][i]
-		# trial['n_estimators'] = int(trial['n_estimators'])
-		# trial['max_depth'] = int(trial['max_depth']) if trial['max_depth'] else trial['max_depth']
-
 		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
 		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
 		trial['prokaryote accuracy'] = grid_search.cv_results_['mean_test_prokaryote_accuracy'][i]
