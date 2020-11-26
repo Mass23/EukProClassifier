@@ -34,16 +34,16 @@ methods = {'linear svc':lin_svc, 'kernel svc':ker_svc,
 ### define the datasets with different transformations
 datas = {}
 
-y, X, _ = load_csv_data(filename)
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
+y, X_freq, _ = load_csv_data(filename)
+X_train, X_test, y_train, y_test = train_test_split(X_freq, y, random_state=seed)
 datas['freq'] = (X_train, X_test, y_train, y_test)
 
-X = clr(X)
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
+X_clr = clr(X_freq)
+X_train, X_test, y_train, y_test = train_test_split(X_clr, y, random_state=seed)
 datas['clr'] = (X_train, X_test, y_train, y_test)
 
-X = ilr(X)
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
+X_ilr = ilr(X_freq)
+X_train, X_test, y_train, y_test = train_test_split(X_ilr, y, random_state=seed)
 datas['ilr'] = (X_train, X_test, y_train, y_test)
 
 
