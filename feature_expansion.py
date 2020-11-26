@@ -5,16 +5,19 @@ from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import balanced_accuracy_score
 from helpers import *
 import pandas as pd
+import time
 
 ################## script
 
-max_degree = 4
+max_degree = 2
 n_jobs = None
 seed = 42
-filename = "small_train.csv"
-#filename = "Counts_n10000_k5_s5000.csv"
+#filename = "small_train.csv"
+filename = "Counts_n10000_k5_s5000.csv"
 
 
 lin_svc = LinearSVC(random_state=seed)
@@ -38,6 +41,7 @@ for i in range(max_degree):
             
 for m in methods:
     print("Testing feature expansion for ", m)
+    clf = methods[m]
     for deg in datas:
         X_p = datas[deg]
         #split data into train and test
@@ -53,6 +57,6 @@ for m in methods:
         pro_acc = pro_accuracy(y_test, y_pred)
         result = {'method' : m, 'degree' : deg, 'accuracy' : bal_acc, 'euk_acc' : euk_acc, 'pro_acc' : pro_acc,
                            'learning time' : (t2-t1), 'prediction time' : (t3 - t2)}
-        df = df.append(result, ignore_Index = True)
+        df = df.append(result, ignore_index = True)
         
 df.to_csv('feature_expansion.csv', index=False)
