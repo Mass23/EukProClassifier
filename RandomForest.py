@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from helpers import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
 def plot_RF(df, figtitle='RF_size_depth.pdf'):
@@ -57,7 +57,7 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None, figtitle='RF_siz
 	param_grid = {'n_estimators': nb_trees, 'max_depth':depths}
 
 	# define the scoring functions
-	scorings = {'accuracy': make_scorer(accuracy_score),
+	scorings = {'accuracy': make_scorer(balanced_accuracy_score),
 			'eukaryote_accuracy':make_scorer(euk_accuracy),
 			'procaryote_accuracy':make_scorer(pro_accuracy)}
 
@@ -72,9 +72,6 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None, figtitle='RF_siz
 					'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
 	for i, trial in enumerate(grid_search.cv_results_['params']):
 		trial = grid_search.cv_results_['params'][i]
-		# trial['n_estimators'] = int(trial['n_estimators'])
-		# trial['max_depth'] = int(trial['max_depth']) if trial['max_depth'] else trial['max_depth']
-
 		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
 		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
 		trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]

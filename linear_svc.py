@@ -3,7 +3,7 @@ import numpy as np
 from helpers import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import make_scorer
@@ -13,7 +13,7 @@ from sklearn.svm import LinearSVC
 
 def plot_linearSVC(df):
     cs = df['C'].unique()
-    
+
     fig,ax = plt.subplots()
     ax.set_title('Linear SVC', fontsize=16)
 
@@ -23,7 +23,7 @@ def plot_linearSVC(df):
     ax.set_xlabel("C",fontsize=14)
     ax.set_ylabel("Accuracy",fontsize=14)
     ax.legend()
-    
+
 
     ax2=ax.twinx()
     ax2.plot(df['C'], df['learning time'],color="blue",marker="o")
@@ -46,13 +46,13 @@ def grid_search_LinearSVC(X, y, seed, n_jobs=None, cv=5, verbose=None):
     param_grid = {'C': c_range}
 
     # define the scoring functions
-    scorings = {'accuracy': make_scorer(accuracy_score),
+    scorings = {'accuracy': make_scorer(balanced_accuracy_score),
             'eukaryote_accuracy':make_scorer(euk_accuracy),
             'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
     # perform the grid search
-    svc = LinearSVC()
-    grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv, 
+    svc = LinearSVC(random_state=seed)
+    grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv,
                                scoring=scorings, refit='accuracy', verbose=verbose)
     grid_search.fit(X, y)
 

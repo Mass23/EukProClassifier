@@ -1,16 +1,8 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
-def CLR_transform(X, scale):
-    minval = np.min(X[np.nonzero(X)])
-    X[X == 0] = minval * scale
-    X = np.log(X)
-    X = X - np.mean(X, axis = 0)
-    return(X)
-
-def load_csv_data(data_path, n_min=1000, CLR_scale=None):
+def load_csv_data(data_path, n_min=1000):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    assert 0 < CLR_scale and CLR_scale < 1
     print('Loading data...')
     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
     data = np.genfromtxt(data_path, delimiter=",", skip_header=1)
@@ -27,13 +19,6 @@ def load_csv_data(data_path, n_min=1000, CLR_scale=None):
     yb   = np.delete(yb,   to_delete, axis=0)
     ids = np.delete(ids, to_delete, axis=0)
     X   = np.delete(X,   to_delete, axis=0)
-
-    if CLR_scale:
-        print('Counts to CLR transformed...')
-        X = CLR_transform(X, CLR_scale)
-
-        print('Data loaded!')
-        return yb, X, ids
 
     print('Counts to frequencies...')
     X = X / X.sum(axis=1, keepdims=True)
