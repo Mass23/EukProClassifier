@@ -40,10 +40,10 @@ def plot(df):
 
 	plt.show()
 	fig.savefig('SVM_C_gamma.pdf', bbox_inches='tight')
-    
-def grid_search_SVC(X, y, n_jobs=None, cv=5, verbose=0):
+
+def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0):
     '''
-    Performs a cross validation grid search of SVC for different values of 
+    Performs a cross validation grid search of SVC for different values of
     parameters C and gamma. It computes the global accuracy, as well as the
     accuracy of each class. The learning time of each method is also stored.
 
@@ -60,7 +60,7 @@ def grid_search_SVC(X, y, n_jobs=None, cv=5, verbose=0):
             'procaryote_accuracy':make_scorer(pro_accuracy)}
 
     # grid search
-    svc = svm.SVC()
+    svc = svm.SVC(random_state=seed)
     grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv,
                                 scoring=scorings, refit='accuracy', verbose=verbose)
     grid_search.fit(X, y)

@@ -45,7 +45,7 @@ def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=None):
 			'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
 	# perform the grid search
-	rf = MLPClassifier(random_state=seed, solver='adam', max_iter=500, n_jobs=n_jobs)
+	rf = MLPClassifier(random_state=seed, solver='adam', max_iter=500)
 	grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=cv,
 								scoring=scorings, refit='accuracy', verbose=verbose)
 	grid_search.fit(X, y)

@@ -13,7 +13,7 @@ from sklearn.svm import LinearSVC
 
 def plot(df):
     cs = df['C'].unique()
-    
+
     fig,ax = plt.subplots()
     ax.set_title('Linear SVC', fontsize=16)
 
@@ -23,7 +23,7 @@ def plot(df):
     ax.set_xlabel("C",fontsize=14)
     ax.set_ylabel("Accuracy",fontsize=14)
     ax.legend()
-    
+
 
     ax2=ax.twinx()
     ax2.plot(df['C'], df['learning time'],color="blue",marker="o")
@@ -51,8 +51,8 @@ def grid_search_LinearSVC(X, y, seed, n_jobs=None, cv=5, verbose=None):
             'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
     # perform the grid search
-    svc = LinearSVC()
-    grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv, 
+    svc = LinearSVC(random_state=seed)
+    grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv,
                                scoring=scorings, refit='accuracy', verbose=verbose)
     grid_search.fit(X, y)
 
