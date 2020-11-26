@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from helpers import *
-# from skbio.stats.composition import clr, ilr
+from skbio.stats.composition import clr, ilr
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 
