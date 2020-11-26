@@ -49,6 +49,6 @@ for m in methods:
         pro_acc = pro_accuracy(y_test, y_pred)
         result = {'method' : m, 'degree' : deg, 'accuracy' : bal_acc, 'euk_acc' : euk_acc, 'pro_acc' : pro_acc,
                            'learning time' : (t2-t1), 'prediction time' : (t3 - t2)}
-        df = df.append(result)
+        df = df.append(result, ignore_Index = True)
         
 df.to_csv('feature_expansion.csv', index=False)
