@@ -8,8 +8,9 @@ def CLR_transform(X, scale):
     X = X - np.mean(X, axis = 0)
     return(X)
 
-def load_csv_data(data_path, n_min = 1000, CLR_scale=None):
+def load_csv_data(data_path, n_min=1000, CLR_scale=None):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
+    assert 0 < CLR_scale and CLR_scale < 1
     print('Loading data...')
     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
     data = np.genfromtxt(data_path, delimiter=",", skip_header=1)
