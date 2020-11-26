@@ -11,7 +11,7 @@ from sklearn import svm
 from sklearn.svm import LinearSVC
 
 
-def plot(df):
+def plot_linearSVC(df):
     cs = df['C'].unique()
     
     fig,ax = plt.subplots()

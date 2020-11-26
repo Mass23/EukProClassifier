@@ -11,7 +11,7 @@ from sklearn import svm
 from sklearn.svm import SVC
 
 
-def plot(df):
+def plot_SVC(df):
 	cs = df['C'].unique()
 	gammas = df['gamma'].unique()
 
