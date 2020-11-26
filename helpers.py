@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
 def load_csv_data(data_path, n_min = 1000):
     """Loads data and returns y (class labels), X (features) and ids (event ids)"""

@@ -4,13 +4,13 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from helpers import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import make_scorer
 
-def plot(df):
+def plot_RF(df, figtitle='RF_size_depth.pdf'):
 	depths = df['max_depth'].unique()
 	nb_trees = df['n_estimators'].unique()
 
@@ -30,17 +30,16 @@ def plot(df):
 		axs[i].plot(depths, pro_acc, color="yellow", marker="o", label='Accuracy on prokaryotes')
 		axs[i].set_xlabel("Maximum depth",fontsize=14)
 		axs[i].set_ylabel("Accuracy", fontsize=14)
+		axs[i].legend()
 
 		ax2 = axs[i].twinx()
 		ax2.plot(depths, time, color="blue", marker="^")
 		ax2.set_ylabel("Learning time [sec]",color="blue",fontsize=14)
 
-		axs[i].legend()
-
 	plt.show()
-	fig.savefig('RF_size_depth.pdf', bbox_inches='tight')
+	fig.savefig(figtitle, bbox_inches='tight')
 
-def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
+def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None, figtitle='RF_size_depth.pdf'):
 	'''
 	Performs a cross validation grid search of RandomForestClassifiers
 	for different number of trees of different maximum depth. It computes
@@ -86,5 +85,5 @@ def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None):
 	df['n_estimators'] = df['n_estimators'].astype(int)
 	df['max_depth'] = df['max_depth'].astype(int)
 
-	plot(df)
+	plot_RF(df, figtitle)
 	return df
