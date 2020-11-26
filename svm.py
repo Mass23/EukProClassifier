@@ -11,7 +11,7 @@ from sklearn import svm
 from sklearn.svm import SVC
 
 
-def plot(df):
+def plot_SVC(df):
 	cs = df['C'].unique()
 	gammas = df['gamma'].unique()
 
@@ -76,9 +76,6 @@ def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0):
         trial['eukaryote accuracy'] = grid_search.cv_results_['mean_test_eukaryote_accuracy'][i]
 
         df = df.append(trial, ignore_index=True)
-
-    df['C'] = df['C'].astype(int)
-    df['gamma'] = df['gamma'].astype(int)
 
     plot(df)
     return df
