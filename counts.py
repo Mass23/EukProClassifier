@@ -69,9 +69,9 @@ for m in methods:
         euk_acc = euk_accuracy(y_test, y_pred)
         pro_acc = pro_accuracy(y_test, y_pred)
 
-        res = {'method':m, 'transformation':t,
+        df = df.append({'method':m, 'transformation':t,
                'accuracy':bal_acc, 'euk_acc':euk_acc, 'pro_acc':pro_acc,
                'learning time':(t2 - t1), 'prediction time':(t3 - t2)}
-        df.append(res, ignore_index=True)
+               , ignore_index=True)
 
 df.to_csv('1_counts.csv', index=False)
