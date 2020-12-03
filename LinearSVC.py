@@ -11,15 +11,25 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
+
 def grid_search_linSVC(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
     '''
-    Performs a cross validation grid search of Linear SVC
-    for different values of parameter C. It computes
-    the global accuracy, as well as the accuracy of each class. The learning time
-    of each method is also stored.
+    Performs a cross validation grid search of LinearSVC for different values of the penalization
+    parameter C. It computes the global accuracy, as well as the accuracy of each class.
+    The learning and prediction time of each method is also stored. The results, as well
+    as the associated plots, are saved into, respectively, a csv and a pdf file.
 
-    :return: panda DataFrame containing the cross-validation accuracies
-            and the mean time used to learn and predict
+    Parameters
+    ----------
+    X, y: the datapoints and associated labels
+    seed: int, controls the pseudo random number generation for shuffling the data for probability estimates
+    cv: int, number of cross-validation folds
+    verbose: int, controls the verbosity: the higher, the more messages
+    data_char: str, describes the dataset
+
+    Returns
+    -------
+    df: panda DataFrame containing the cross-validation accuracies and time used to learn and predict
     '''
     # define the grid
     c_range = np.logspace(-2, 10, 10)

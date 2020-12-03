@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Some usueful functions to load the data, compute label accuracies
+Some useful functions to load the data, compute label accuracies
 and plot grid search results.
 """
 
