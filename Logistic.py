@@ -46,8 +46,8 @@ def grid_search_LogReg(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots
 	:return: panda DataFrame containing the cross-validation accuracies and the mean time used to learn
 	'''
 	# define the grid
-	Cs = np.logspace(0, 4, 20)
-	param_grid = [{'C': Cs}, {penalty:'none'}]
+	Cs = np.logspace(0, 3, 20)
+	param_grid = {'C': Cs}
 
 	# define the scoring functions
 	scorings = {'accuracy': make_scorer(balanced_accuracy_score),
