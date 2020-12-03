@@ -13,7 +13,7 @@ import time
 
 ################## script
 
-max_degree = 2
+max_degree = 3
 n_jobs = None
 seed = 42
 #filename = "small_train.csv"
