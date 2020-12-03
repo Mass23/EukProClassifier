@@ -38,7 +38,7 @@ for i in range(max_degree):
     poly = PolynomialFeatures(i+1)
     new_X = poly.fit_transform(X)
     datas[i+1] = new_X
-            
+
 for m in methods:
     print("Testing feature expansion for ", m)
     clf = methods[m]
@@ -51,12 +51,12 @@ for m in methods:
         t2 = time.time()
         y_pred = clf.predict(X_test)
         t3 = time.time()
-        
+
         bal_acc = balanced_accuracy_score(y_test, y_pred)
         euk_acc = euk_accuracy(y_test, y_pred)
         pro_acc = pro_accuracy(y_test, y_pred)
         result = {'method' : m, 'degree' : deg, 'accuracy' : bal_acc, 'euk_acc' : euk_acc, 'pro_acc' : pro_acc,
                            'learning time' : (t2-t1), 'prediction time' : (t3 - t2)}
         df = df.append(result, ignore_index = True)
-        
-df.to_csv('feature_expansion.csv', index=False)
+
+df.to_csv('2_feature_expansion.csv', index=False)
