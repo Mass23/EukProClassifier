@@ -1,6 +1,6 @@
 # specific files
 RF.py
-temp_plots/
+tmp_plots/
 Counts_n10000_k5_s5000.csv
 
 # Byte-compiled / optimized / DLL files
