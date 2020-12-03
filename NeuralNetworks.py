@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
-def plot_NN(df):
+def plot_NN(df, figtitle='plots/NN_n_nodes.pdf'):
 	fig,ax = plt.subplots()
 
 	ax.plot(df['hidden_layer_size'], df['mean test accuracy'], color="black", marker="o")
@@ -20,11 +20,11 @@ def plot_NN(df):
 	ax.set_ylabel("Mean accuracy (10-fold CV)",color="black",fontsize=14)
 
 	ax2=ax.twinx()
-	ax2.plot(df['hidden_layer_size'], df['learning time'],color="blue",marker="o")
-	ax2.set_ylabel("Computing time [sec]",color="blue",fontsize=14)
-	fig.savefig('NN_n_nodes.pdf',bbox_inches='tight')
+	ax2.plot(df['hidden_layer_size'], df['learning time'], color="blue", marker="o")
+	ax2.set_ylabel("Computing time [sec]", color="blue", fontsize=14)
+	fig.savefig(figtitle, bbox_inches='tight')
 
-def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=None):
+def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots/NN_n_nodes.pdf'):
 	'''
 	Performs a cross validation grid search of MLP classifier
 	for different number of nodes and hidden layers architecture. It computes
@@ -64,5 +64,5 @@ def grid_search_NN(X, y, seed, n_jobs=None, cv=5, verbose=None):
 
 	df['hidden_layer_size'] = df['hidden_layer_size'].astype(int)
 
-	plot_NN(df)
+	plot_NN(df, figtitle)
 	return df

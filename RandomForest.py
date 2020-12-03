@@ -10,7 +10,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
-def plot_RF(df, figtitle='RF_size_depth.pdf'):
+def plot_RF(df, figtitle='plots/RF_size_depth.pdf'):
 	depths = df['max_depth'].unique()
 	nb_trees = df['n_estimators'].unique()
 
@@ -39,7 +39,7 @@ def plot_RF(df, figtitle='RF_size_depth.pdf'):
 	plt.show()
 	fig.savefig(figtitle, bbox_inches='tight')
 
-def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=None, figtitle='RF_size_depth.pdf'):
+def grid_search_RF(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots/RF_size_depth.pdf'):
 	'''
 	Performs a cross validation grid search of RandomForestClassifiers
 	for different number of trees of different maximum depth. It computes

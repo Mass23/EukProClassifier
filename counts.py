@@ -18,7 +18,7 @@ from time import time
 
 
 seed = 42
-verbose = True
+verbose = 1
 filename = "Counts_n10000_k5_s5000.csv"
 
 

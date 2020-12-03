@@ -11,28 +11,28 @@ from sklearn import svm
 from sklearn.svm import LinearSVC
 
 
-def plot_linearSVC(df):
+def plot_linearSVC(df, figtitle='plots/LinearSVC_C.pdf'):
     cs = df['C'].unique()
 
     fig,ax = plt.subplots()
     ax.set_title('Linear SVC', fontsize=16)
 
     ax.plot(df['C'], df['mean test accuracy'], color="yellow", marker="o", label = 'Global Accuracy')
-    ax.plot(df['C'], df['mean_test_prokaryote_accuracy'],  color="red", marker="o", label = 'Prokaryote Accuracy')
-    ax.plot(df['C'], df['mean_test_eukaryote_accuracy'],  color="orange", marker="o", label = 'Eukaryote Accuracy')
+    ax.plot(df['C'], df['mean_test_prokaryote_accuracy'], color="red", marker="o", label = 'Prokaryote Accuracy')
+    ax.plot(df['C'], df['mean_test_eukaryote_accuracy'], color="orange", marker="o", label = 'Eukaryote Accuracy')
     ax.set_xlabel("C",fontsize=14)
     ax.set_ylabel("Accuracy",fontsize=14)
     ax.legend()
 
 
     ax2=ax.twinx()
-    ax2.plot(df['C'], df['learning time'],color="blue",marker="o")
-    ax2.set_ylabel("Learning time [sec]",color="blue",fontsize=14)
-    fig.savefig('LinearSVC_C.pdf',bbox_inches='tight')
+    ax2.plot(df['C'], df['learning time'], color="blue", marker="o")
+    ax2.set_ylabel("Learning time [sec]", color="blue", fontsize=14)
+    fig.savefig(figtitle, bbox_inches='tight')
     plt.show()
 
 
-def grid_search_LinearSVC(X, y, seed, n_jobs=None, cv=5, verbose=None):
+def grid_search_LinearSVC(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots/LinearSVC_C.pdf'):
 	'''
 	Performs a cross validation grid search of Linear SVC
 	for different values of parameter C. It computes
@@ -68,5 +68,5 @@ def grid_search_LinearSVC(X, y, seed, n_jobs=None, cv=5, verbose=None):
 
         df = df.append(trial, ignore_index=True)
 
-    plot(df)
+    plot(df, figtitle)
     return df

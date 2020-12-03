@@ -10,46 +10,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
-def grid_search_LogReg(X, y, seed, n_jobs=None, cv=5, verbose=None, figtitle='LogReg.pdf'):
-	'''
-	Performs a cross validation grid search of LogisticRegressions
-	for different inverse of regularization strength values C. It computes
-	the global accuracy, as well as the accuracy of each class. The learning time
-	of each method is also stored.
 
-	:return: panda DataFrame containing the cross-validation accuracies and the mean time used to learn
-	'''
-	# define the grid
-	Cs = np.logspace(0, 4, 20)
-	param_grid = {'C': Cs}
-
-	# define the scoring functions
-	scorings = {'accuracy': make_scorer(balanced_accuracy_score),
-		'eukaryote_accuracy':make_scorer(euk_accuracy),
-		'procaryote_accuracy':make_scorer(pro_accuracy)}
-
-	# perform the grid search
-	rf = LogisticRegression(max_iter=10000, random_state=seed, n_jobs=n_jobs)
-	grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=cv,
-								scoring=scorings, refit='accuracy', verbose=verbose)
-	grid_search.fit(X, y)
-
-	# store the result in a dataframe
-	df = pd.DataFrame(columns=['C', 'accuracy', 'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
-	for i, trial in enumerate(grid_search.cv_results_['params']):
-		trial = grid_search.cv_results_['params'][i]
-		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
-		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
-		trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]
-		trial['eukaryote accuracy'] = grid_search.cv_results_['mean_test_eukaryote_accuracy'][i]
-
-		df = df.append(trial, ignore_index=True)
-
-	plot_LogReg(df, figtitle)
-	return df
-
-
-def plot_LogReg(df, figtitle='LogReg.pdf'):
+def plot_LogReg(df, figtitle='plots/LogReg.pdf'):
 	Cs = df['C'].unique()
 
 	fig, ax = plt.subplots(figsize=(15, 10))
@@ -69,7 +31,45 @@ def plot_LogReg(df, figtitle='LogReg.pdf'):
 
 	ax2 = ax.twinx()
 	ax2.plot(Cs, time, color="blue", marker="^")
-	ax2.set_ylabel("Learning time [sec]",color="blue",fontsize=14)
+	ax2.set_ylabel("Learning time [sec]",color="blue", fontsize=14)
 
 	plt.show()
 	fig.savefig(figtitle, bbox_inches='tight')
+
+def grid_search_LogReg(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots/LogReg.pdf'):
+	'''
+	Performs a cross validation grid search of LogisticRegressions
+	for different inverse of regularization strength values C. It computes
+	the global accuracy, as well as the accuracy of each class. The learning time
+	of each method is also stored.
+
+	:return: panda DataFrame containing the cross-validation accuracies and the mean time used to learn
+	'''
+	# define the grid
+	Cs = np.logspace(0, 4, 20)
+	param_grid = [{'C': Cs}, {penalty:'none'}]
+
+	# define the scoring functions
+	scorings = {'accuracy': make_scorer(balanced_accuracy_score),
+		'eukaryote_accuracy':make_scorer(euk_accuracy),
+		'procaryote_accuracy':make_scorer(pro_accuracy)}
+
+	# perform the grid search
+	lr = LogisticRegression(max_iter=10000, random_state=seed, n_jobs=n_jobs)
+	grid_search = GridSearchCV(estimator=lr, param_grid=param_grid, cv=cv,
+								scoring=scorings, refit='accuracy', verbose=verbose)
+	grid_search.fit(X, y)
+
+	# store the result in a dataframe
+	df = pd.DataFrame(columns=['C', 'accuracy', 'procaryote accuracy', 'eukaryote accuracy', 'learning time'])
+	for i, trial in enumerate(grid_search.cv_results_['params']):
+		trial = grid_search.cv_results_['params'][i]
+		trial['learning time'] = grid_search.cv_results_['mean_fit_time'][i]
+		trial['accuracy'] = grid_search.cv_results_['mean_test_accuracy'][i]
+		trial['procaryote accuracy'] = grid_search.cv_results_['mean_test_procaryote_accuracy'][i]
+		trial['eukaryote accuracy'] = grid_search.cv_results_['mean_test_eukaryote_accuracy'][i]
+
+		df = df.append(trial, ignore_index=True)
+
+	plot_LogReg(df, figtitle)
+	return df

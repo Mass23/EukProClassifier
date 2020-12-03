@@ -11,7 +11,7 @@ from sklearn import svm
 from sklearn.svm import SVC
 
 
-def plot_SVC(df):
+def plot_SVC(df, figtitle='plots/SVM_C_gamma.pdf'):
 	cs = df['C'].unique()
 	gammas = df['gamma'].unique()
 
@@ -39,9 +39,9 @@ def plot_SVC(df):
 		axs[i].legend()
 
 	plt.show()
-	fig.savefig('SVM_C_gamma.pdf', bbox_inches='tight')
+	fig.savefig(figtitle, bbox_inches='tight')
 
-def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0):
+def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0, figtitle='plots/SVM_C_gamma.pdf'):
     '''
     Performs a cross validation grid search of SVC for different values of
     parameters C and gamma. It computes the global accuracy, as well as the
@@ -77,5 +77,5 @@ def grid_search_SVC(X, y, seed, n_jobs=None, cv=5, verbose=0):
 
         df = df.append(trial, ignore_index=True)
 
-    plot(df)
+    plot(df, figtitle)
     return df
