@@ -11,6 +11,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix
+from sklearn.cluster import KMeans
+from sklearn.metrics import balanced_accuracy_score
+
+seed = 42
+
+def CLR_transform(X):
+    minval = np.min(X[np.nonzero(X)])
+    X[X == 0] = minval
+    X = np.log(X)
+    X = X - np.mean(X, axis = 0)
+    return(X)
+
+def FREQ_transform(X):
+    return(X / X.sum(axis=1, keepdims=True))
 
 def load_csv_data(data_path, n_min=1000):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -31,8 +45,6 @@ def load_csv_data(data_path, n_min=1000):
     ids = np.delete(ids, to_delete, axis=0)
     X   = np.delete(X,   to_delete, axis=0)
 
-    print('Counts to frequencies...')
-    X = X / X.sum(axis=1, keepdims=True)
     print('Data loaded!')
     return yb, X, ids
 
@@ -45,6 +57,36 @@ def pro_accuracy(y_test, y_pred):
     matrix = confusion_matrix(y_test, y_pred)
     class_ac = matrix.diagonal() / matrix.sum(axis=1)
     return class_ac[0]
+
+def create_kmeans_data(data, labels):
+    kmeans_trans_X = np.empty((data.shape[0],len(set(labels))))
+
+    labels_list = list(set(labels))
+    for cluster_label in labels_list:
+        cluster_cols = np.where(labels == cluster_label)[0]
+        cluster_sums = np.sum(data[:,cluster_cols], axis = 1)
+        kmeans_trans_X[:,[cluster_label]] = np.expand_dims(cluster_sums,axis=1)
+    return kmeans_trans_X
+
+def kmeans_optimisation(X_train, X_test, y_train, y_test, method):
+    best_k = 0
+    best_acc = 0
+
+    for k in [64,128,256,512]:
+        print('  - K-means, k = ' + str(k))
+        kmeans = KMeans(n_clusters=k, random_state=seed).fit(X_train.T)
+        kmeans_X_train = create_kmeans_data(X_train, kmeans.labels_)
+        kmeans_X_test = create_kmeans_data(X_test, kmeans.labels_)
+
+        method.fit(kmeans_X_train, y_train)
+        y_pred = method.predict(kmeans_X_test)
+
+        bal_acc = balanced_accuracy_score(y_test, y_pred)
+        if bal_acc > best_acc:
+            best_k = k
+            best_acc = bal_acc
+
+    return(best_k, kmeans.labels_)
 
 def plot_2param(df, param1, param2, suptitle, axtitle, figtitle, x_label):
     P1 = df[param1].unique()
