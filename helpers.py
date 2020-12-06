@@ -1,30 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-Some useful functions to load the data, compute label accuracies
+Some useful functions to process the data, compute label accuracies
 and plot grid search results.
 """
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix
-from sklearn.cluster import KMeans
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.cluster import KMeans
 
-seed = 42
+from time import time
 
-def CLR_transform(X):
-    minval = np.min(X[np.nonzero(X)])
-    X[X == 0] = minval
-    X = np.log(X)
-    X = X - np.mean(X, axis = 0)
-    return(X)
-
-def FREQ_transform(X):
-    return(X / X.sum(axis=1, keepdims=True))
 
 def load_csv_data(data_path, n_min=1000):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -48,45 +38,88 @@ def load_csv_data(data_path, n_min=1000):
     print('Data loaded!')
     return yb, X, ids
 
+def FREQ_transform(X):
+    """Transforms the counts contained in the data X into frequencies."""
+    return(X / X.sum(axis=1, keepdims=True))
+
+def CLR_transform(X):
+    """Applies the Centered Log-ratio Transformation to the data X."""
+    minval = np.min(X[np.nonzero(X)])
+    X[X == 0] = minval
+    X = np.log(X)
+    X = X - np.mean(X, axis = 0)
+    return(X)
+
+def create_kmeans_data(data, labels):
+    """
+    Creates a transformed data by clustering the features according to labels.
+    """
+    kmeans_trans_X = np.zeros((data.shape[0], len(set(labels))))
+
+    labels_list = list(set(labels))
+    for cluster_label in labels_list:
+        cluster_cols = np.where(labels == cluster_label)[0]
+        cluster_sums = np.sum(data[:, cluster_cols], axis=1)
+        kmeans_trans_X[:,[cluster_label]] = np.expand_dims(cluster_sums, axis=1)
+    return kmeans_trans_X
+
+def kmeans_optimisation(X, y, method, k_mean_seed, split_seed, verbose=0):
+    """
+    Computes different K-means transformation on the data.
+    It returns the number of clusters K in [64, 128, 256, 512] that gives the best
+    global accuracy for the given method.
+    """
+    best_k = 0
+    best_bal_acc, best_euk_acc, best_pro_acc = 0, 0, 0
+    best_learn_time, best_predi_time = 0, 0
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=split_seed)
+
+    for k in [64, 128, 256, 512]:
+        if verbose:
+            print('  - K-means, k = ' + str(k))
+
+        # cluster the data
+        kmeans = KMeans(n_clusters=k, random_state=k_mean_seed).fit(X.T)
+        kmeans_X_train = create_kmeans_data(X_train, kmeans.labels_)
+        kmeans_X_test = create_kmeans_data(X_test, kmeans.labels_)
+
+        # evalutate the resulting dataset on method
+        t1 = time()
+        method.fit(kmeans_X_train, y_train)
+        t2 = time()
+        y_pred = method.predict(kmeans_X_test)
+        t3 = time()
+
+        # keep the best number of clusters
+        bal_acc = balanced_accuracy_score(y_test, y_pred)
+        if bal_acc > best_bal_acc:
+            best_k = k
+            best_bal_acc = bal_acc
+            best_euk_acc = euk_accuracy(y_test, y_pred)
+            best_pro_acc = pro_accuracy(y_test, y_pred)
+            best_learn_time = t2 - t1
+            best_predi_time = t3 - t2
+
+    if verbose:
+        print('      - accuracy=' + str(best_bal_acc))
+
+    res = (best_k,
+        best_bal_acc, best_euk_acc, best_pro_acc,
+        best_learn_time, best_predi_time)
+    return res
+
 def euk_accuracy(y_test, y_pred):
+    """Computes the accuracy for the class 'eukaryote' only."""
     matrix = confusion_matrix(y_test, y_pred)
     class_ac = matrix.diagonal() / matrix.sum(axis=1)
     return class_ac[1]
 
 def pro_accuracy(y_test, y_pred):
+    """Computes the accuracy for the class 'prokaryote' only."""
     matrix = confusion_matrix(y_test, y_pred)
     class_ac = matrix.diagonal() / matrix.sum(axis=1)
     return class_ac[0]
-
-def create_kmeans_data(data, labels):
-    kmeans_trans_X = np.empty((data.shape[0],len(set(labels))))
-
-    labels_list = list(set(labels))
-    for cluster_label in labels_list:
-        cluster_cols = np.where(labels == cluster_label)[0]
-        cluster_sums = np.sum(data[:,cluster_cols], axis = 1)
-        kmeans_trans_X[:,[cluster_label]] = np.expand_dims(cluster_sums,axis=1)
-    return kmeans_trans_X
-
-def kmeans_optimisation(X_train, X_test, y_train, y_test, method):
-    best_k = 0
-    best_acc = 0
-
-    for k in [64,128,256,512]:
-        print('  - K-means, k = ' + str(k))
-        kmeans = KMeans(n_clusters=k, random_state=seed).fit(X_train.T)
-        kmeans_X_train = create_kmeans_data(X_train, kmeans.labels_)
-        kmeans_X_test = create_kmeans_data(X_test, kmeans.labels_)
-
-        method.fit(kmeans_X_train, y_train)
-        y_pred = method.predict(kmeans_X_test)
-
-        bal_acc = balanced_accuracy_score(y_test, y_pred)
-        if bal_acc > best_acc:
-            best_k = k
-            best_acc = bal_acc
-
-    return(best_k, kmeans.labels_)
 
 def plot_2param(df, param1, param2, suptitle, axtitle, figtitle, x_label):
     P1 = df[param1].unique()

@@ -32,7 +32,7 @@ def grid_search_linSVC(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
     df: panda DataFrame containing the cross-validation accuracies and time used to learn and predict
     '''
     # define the grid
-    c_range = np.logspace(-2, 10, 10)
+    c_range = np.logspace(-2, 3, 20)
     param_grid = {'C': c_range}
 
     # define the scoring functions
