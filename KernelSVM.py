@@ -32,8 +32,8 @@ def grid_search_SVC(X, y, seed, cv=5, verbose=0,  data_char='freq_noexp_k5'):
     df: panda DataFrame containing the cross-validation accuracies and time used to learn and predict
     '''
     # define the ranges
-    c_range = np.logspace(0, 10, num=5)
-    gamma_range = np.logspace(0, 10, num=10)
+    c_range = [0.01, 0.1, 10, 100] 
+    gamma_range = [0.001, 0.01, 0.1, 1, 10, 100] 
     param_grid = {'C': c_range, 'gamma':gamma_range}
 
     # define the scoring functions
