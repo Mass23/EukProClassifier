@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
 
 from time import time
@@ -63,49 +63,42 @@ def create_kmeans_data(data, labels):
         kmeans_trans_X[:,[cluster_label]] = np.expand_dims(cluster_sums, axis=1)
     return kmeans_trans_X
 
-def kmeans_optimisation(X, y, method, k_mean_seed, split_seed, verbose=0):
+def kmeans_optimisation(X, y, method, scoring, cv, seed, verbose=0):
     """
     Computes different K-means transformation on the data.
     It returns the number of clusters K in [64, 128, 256, 512] that gives the best
-    global accuracy for the given method.
+    global accuracy for the given method. The evaluation is done using a cv-fold cross validation.
     """
     best_k = 0
     best_bal_acc, best_euk_acc, best_pro_acc = 0, 0, 0
     best_learn_time, best_predi_time = 0, 0
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=split_seed)
 
     for k in [64, 128, 256, 512]:
         if verbose:
             print('  - K-means, k = ' + str(k))
 
         # cluster the data
-        kmeans = KMeans(n_clusters=k, random_state=k_mean_seed).fit(X.T)
-        kmeans_X_train = create_kmeans_data(X_train, kmeans.labels_)
-        kmeans_X_test = create_kmeans_data(X_test, kmeans.labels_)
+        kmeans = KMeans(n_clusters=k, random_state=seed).fit(X.T)
+        kX = create_kmeans_data(X, kmeans.labels_)
 
         # evalutate the resulting dataset on method
-        t1 = time()
-        method.fit(kmeans_X_train, y_train)
-        t2 = time()
-        y_pred = method.predict(kmeans_X_test)
-        t3 = time()
+        scores = cross_validate(method, X, y, cv=cv, verbose=verbose, scoring=scoring)
+        res = {i:np.mean(scores[i]) for i in scores.keys()}
 
         # keep the best number of clusters
-        bal_acc = balanced_accuracy_score(y_test, y_pred)
+        bal_acc = res['test_accuracy']
         if bal_acc > best_bal_acc:
             best_k = k
             best_bal_acc = bal_acc
-            best_euk_acc = euk_accuracy(y_test, y_pred)
-            best_pro_acc = pro_accuracy(y_test, y_pred)
-            best_learn_time = t2 - t1
-            best_predi_time = t3 - t2
+            best_euk_acc = res['test_eukaryote_accuracy']
+            best_pro_acc = res['test_prokaryote_accuracy']
+            best_learn_time = res['fit_time']
+            best_predi_time = res['score_time']
 
     if verbose:
         print('      - accuracy=' + str(best_bal_acc))
 
-    res = (best_k,
-        best_bal_acc, best_euk_acc, best_pro_acc,
+    res = (best_k, best_bal_acc, best_euk_acc, best_pro_acc,
         best_learn_time, best_predi_time)
     return res
 

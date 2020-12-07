@@ -33,7 +33,10 @@ FILENAME = "../data/Counts_n10000_k5_s5000.csv"
 
 seed = 42
 k_mean_seed = 27
+cv = 5
+############################################
 cv = 2
+############################################
 verbose = 1
 
 # define the methods
@@ -54,22 +57,15 @@ scorings = {'accuracy': make_scorer(balanced_accuracy_score),
 # define the datasets with different transformations
 datas = {}
 y, X, _ = load_csv_data(FILENAME)
-
 ############################################
 X, y = X[:100], y[:100]
 methods = {'linear svc':lin_svc}
 ############################################
-
 X_freq = FREQ_transform(X)
-X_train, X_test, y_train, y_test = train_test_split(X_freq, y, random_state=seed)
-datas['freq'] = (X_train, X_test, y_train, y_test)
-
 X_clr = CLR_transform(X_freq)
-X_train, X_test, y_train, y_test = train_test_split(X_clr, y, random_state=seed)
-datas['clr'] = (X_train, X_test, y_train, y_test)
-
+datas['freq'] = (X_freq, y)
+datas['clr'] = (X_clr, y)
 datas['k-means'] = (X_freq, y)
-
 
 # store accuracies of different methods and transformations in panda dataframe
 df = pd.DataFrame(columns=['method', 'transformation', 'accuracy', 'euk_acc', 'pro_acc',
@@ -81,28 +77,21 @@ for m in methods:
 			print('Testing count transformation for {} with {}'.format(m, t))
 
 		if t == 'k-means':
-			res = kmeans_optimisation(X, y, clf, k_mean_seed, seed, verbose)
+			X, y = datas[t]
+			res = kmeans_optimisation(X, y, clf, scoring=scorings, cv=cv, seed=k_mean_seed, verbose=verbose)
 			best_k, bal_acc, euk_acc, pro_acc, learn_time, predi_time = res
 			transfo = t + '(k=' + str(best_k) + ')'
 		else:
-			X_train, X_test, y_train, y_test = datas[t]
-			t1 = time()
-			clf.fit(X_train, y_train)
-			t2 = time()
-			y_pred = clf.predict(X_test)
-			t3 = time()
+			X, y = datas[t]
+			scores = cross_validate(clf, X, y, cv=cv, verbose=verbose, scoring=scorings)
+			res = {i:np.mean(scores[i]) for i in scores.keys()}
 
-
-			scores = cross_validate(clf, X, y, scoring=scorings)
-			res = {i:np.mean(scores[i]) for i in sorted(scores.keys())}
-
-			bal_acc = balanced_accuracy_score(y_test, y_pred)
-			euk_acc = euk_accuracy(y_test, y_pred)
-			pro_acc = pro_accuracy(y_test, y_pred)
-
+			bal_acc = res['test_accuracy']
+			euk_acc = res['test_eukaryote_accuracy']
+			pro_acc = res['test_prokaryote_accuracy']
+			learn_time = res['fit_time']
+			predi_time = res['score_time']
 			transfo = t
-			learn_time = t2 - t1
-			predi_time = t3 - t2
 
 			if verbose:
 				print('      - accuracy=' + str(bal_acc))
