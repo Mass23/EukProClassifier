@@ -83,9 +83,6 @@ def grid_search_linSVC(X, y, data_char, cv, seed, verbose=0):
 
 	# define the grid
 	c_range = np.logspace(-2, 3, 20)
-#######################################
-	c_range = np.logspace(0, 3, 2)
-#######################################
 	param_grid = {'C': c_range}
 
 	# get the grid search results
@@ -121,10 +118,6 @@ def grid_search_SVC(X, y, data_char, cv, seed, verbose=0):
 	# define the grid
 	c_range = [0.01, 0.1, 10, 100]
 	gamma_range = [0.001, 0.01, 0.1, 1, 10, 100]
-#######################################
-	c_range = [0.1, 10]
-	gamma_range = [1, 10]
-#######################################
 	param_grid = {'C': c_range, 'gamma':gamma_range}
 
 	# get the grid search results
@@ -160,9 +153,6 @@ def grid_search_LogReg(X, y, data_char, cv, seed, verbose=0):
 
 	# define the grid
 	Cs = np.logspace(0, 3, 20)
-#######################################
-	Cs = np.logspace(0, 3, 2)
-#######################################
 	param_grid = {'C': Cs}
 
 	# get the grid search results
@@ -198,10 +188,6 @@ def grid_search_RF(X, y, data_char, cv, seed, verbose=0):
 	# define the grid
 	nb_trees = [20, 80, 100, 150, 200]
 	depths = [5, 10, 15, 20, 35, 50]
-#######################################
-	nb_trees = [5, 10]
-	depths = [5, 7]
-#######################################
 	param_grid = {'n_estimators': nb_trees, 'max_depth':depths}
 
 	# get the grid search results
@@ -239,9 +225,6 @@ def grid_search_NN(X, y, data_char, cv, seed, verbose=0):
 
 	# define the grid
 	hidden_layer_size = [(50,), (100,), (150,), (200,), (250,), (300,), (350,), (400,), (450,), (500,)]
-#######################################
-	hidden_layer_size = [(5,), (10,)]
-#######################################
 	param_grid = {'hidden_layer_sizes': hidden_layer_size}
 
 	# get the grid search results

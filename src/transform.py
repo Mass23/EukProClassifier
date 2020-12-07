@@ -35,9 +35,6 @@ FILENAME = "../data/Counts_n10000_k5_s5000.csv"
 seed = 42
 k_mean_seed = 27
 cv = 5
-############################################
-cv = 2
-############################################
 verbose = 1
 
 # define the methods
@@ -58,10 +55,6 @@ scorings = {'accuracy': make_scorer(balanced_accuracy_score),
 # define the datasets with different transformations
 datas = {}
 y, X, _ = load_csv_data(FILENAME)
-############################################
-X, y = X[:100], y[:100]
-methods = {'linear svc':lin_svc}
-############################################
 X_freq = FREQ_transform(X)
 X_clr = CLR_transform(X_freq)
 datas['freq'] = (X_freq, y)
