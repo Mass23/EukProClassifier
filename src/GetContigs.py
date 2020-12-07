@@ -64,24 +64,24 @@ def main():
         if count > sample_size:
             break
         print('Sample number: ' + str(count), end = '\r')
-        
+
         # Randomly sample one genome from the files lists
         euk_genome_file = random.sample(euk_genomes, 1)[0]
         pro_genome_file = random.sample(pro_genomes, 1)[0]
-        
+
         # Get randomly a contig of size contig_size in the genome (using Bio's SeqIO interface to deal with DNA data)
         euk_contig = GetContig(euk_genome_file, contig_size)
         pro_contig = GetContig(pro_genome_file, contig_size)
-        
+
         # Get the kounts of each kmers in the contigs, create dict to append to the pandas dataframe.
         euk_row = GetKmerCounts('Eukaryote' , euk_contig, kmers)
         pro_row = GetKmerCounts('Prokaryote', pro_contig, kmers)
-        
+
         # Append dict counts
         counts_dict = counts_dict.append(euk_row, ignore_index=True)
         counts_dict = counts_dict.append(pro_row, ignore_index=True)
 
-    counts_dict.to_csv('Counts_n' + str(sample_size) + '_k' + str(k) + '_s' + str(contig_size) + '.csv', sep=',')
+    counts_dict.to_csv('../data/Counts_n' + str(sample_size) + '_k' + str(k) + '_s' + str(contig_size) + '.csv', sep=',')
 
 if __name__ == "__main__":
     main()

@@ -6,16 +6,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from helpers import *
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
 
-def grid_search_linSVC(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
+def grid_search_SVC(X, y, seed, cv=5, verbose=0,  data_char='freq_k5'):
     '''
-    Performs a cross validation grid search of LinearSVC for different values of the penalization
-    parameter C. It computes the global accuracy, as well as the accuracy of each class.
+    Performs a cross validation grid search of SVC for different values of the parameters
+    C and gamma. It computes the global accuracy, as well as the accuracy of each class.
     The learning and prediction time of each method is also stored. The results, as well
     as the associated plots, are saved into, respectively, a csv and a pdf file.
 
@@ -31,23 +31,24 @@ def grid_search_linSVC(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
     -------
     df: panda DataFrame containing the cross-validation accuracies and time used to learn and predict
     '''
-    # define the grid
-    c_range = np.logspace(-2, 3, 20)
-    param_grid = {'C': c_range}
+    # define the ranges
+    c_range = [0.01, 0.1, 10, 100]
+    gamma_range = [0.001, 0.01, 0.1, 1, 10, 100]
+    param_grid = {'C': c_range, 'gamma':gamma_range}
 
     # define the scoring functions
     scorings = {'accuracy': make_scorer(balanced_accuracy_score),
             'eukaryote_accuracy':make_scorer(euk_accuracy),
             'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
-    # perform the grid search
-    svc = LinearSVC(random_state=seed, max_iter=10000)
+    # grid search
+    svc = SVC(random_state=seed)
     grid_search = GridSearchCV(estimator=svc, param_grid=param_grid, cv=cv,
-                               scoring=scorings, refit='accuracy', verbose=verbose)
+                                scoring=scorings, refit='accuracy', verbose=verbose)
     grid_search.fit(X, y)
 
-    # store the result in a dataframe
-    df = pd.DataFrame(columns=['C',
+    # store the results in a dataframe
+    df = pd.DataFrame(columns=['C', 'gamma',
                     'accuracy', 'eukaryote accuracy', 'prokaryote accuracy',
                     'learning time', 'prediction time'])
     for i, trial in enumerate(grid_search.cv_results_['params']):
@@ -61,13 +62,14 @@ def grid_search_linSVC(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
         df = df.append(trial, ignore_index=True)
 
     # save dataframe
-    df.to_csv('gs_results/linSVC_{}.csv'.format(data_char), index=False)
+    df.to_csv('gs_results/SVM_{}.csv'.format(data_char), index=False)
 
     # plot results
-    suptitle = 'Linear SVC with dataset characteristics {}'.format(data_char)
-    axtitle = 'Accuracy and computation time with respect to regularization parameter C'
-    figtitle = 'gs_plots/linSVC_{}.pdf'.format(data_char)
-    plot_1param(df, 'C', suptitle, axtitle, figtitle, 'C')
+    suptitle = 'Support Vector Machine with dataset characteristics {}\n \
+                Accuracy and computation time with respect to gamma'.format(data_char)
+    axtitle = 'SVM with C = {}'
+    figtitle = 'gs_plots/SVM_{}.pdf'.format(data_char)
+    plot_2param(df, 'gamma', 'C', suptitle, axtitle, figtitle, 'Gamma')
     display(df)
 
     return df

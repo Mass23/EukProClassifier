@@ -183,4 +183,5 @@ def plot_1param(df, param, suptitle, axtitle, figtitle, x_label):
     ax2.set_ylabel("Time [sec]", color="blue", fontsize=14)
     ax2.legend(bbox_to_anchor=(1.04, 0), loc="lower left")
 
+    fig.tight_layout()
     fig.savefig(figtitle, bbox_inches='tight')

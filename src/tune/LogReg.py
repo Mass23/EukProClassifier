@@ -12,7 +12,7 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import make_scorer
 
 
-def grid_search_LogReg(X, y, seed, cv=5, verbose=0, data_char='freq_noexp_k5'):
+def grid_search_LogReg(X, y, seed, cv=5, verbose=0, data_char='freq_k5'):
 	'''
 	Performs a cross validation grid search of LogisticRegression for different inverse of
 	regularization strength values C. It computes the global accuracy, as well as the accuracy
