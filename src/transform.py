@@ -51,10 +51,8 @@ scorings = {'accuracy': make_scorer(balanced_accuracy_score),
 		'eukaryote_accuracy':make_scorer(euk_accuracy),
 		'prokaryote_accuracy':make_scorer(pro_accuracy)}
 
-
 # define the datasets with different transformations
 datas = {}
-
 y, X, _ = load_csv_data(FILENAME)
 
 ############################################
@@ -93,6 +91,10 @@ for m in methods:
 			t2 = time()
 			y_pred = clf.predict(X_test)
 			t3 = time()
+
+
+			scores = cross_validate(clf, X, y, scoring=scorings)
+			res = {i:np.mean(scores[i]) for i in sorted(scores.keys())}
 
 			bal_acc = balanced_accuracy_score(y_test, y_pred)
 			euk_acc = euk_accuracy(y_test, y_pred)

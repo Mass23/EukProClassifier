@@ -92,12 +92,12 @@ def grid_search_linSVC(X, y, data_char, cv, seed, verbose=0):
 	df = grid_search(X, y, lin_svc, param_grid, cv, verbose)
 
 	# save dataframe
-	df.to_csv('../output/linSVC_{}.csv'.format(data_char), index=False)
+	df.to_csv('../output/{}_linSVC.csv'.format(data_char), index=False)
 
 	# plot results
 	suptitle = 'Linear SVC with dataset characteristics {}'.format(data_char)
 	axtitle = 'Accuracy and computation time with respect to regularization parameter C'
-	figtitle = '../output/plots/linSVC_{}.pdf'.format(data_char)
+	figtitle = '../output/plots/{}_linSVC.pdf'.format(data_char)
 	plot_1param(df, 'C', suptitle, axtitle, figtitle, 'C')
 
 
@@ -131,13 +131,13 @@ def grid_search_SVC(X, y, data_char, cv, seed, verbose=0):
 	df = grid_search(X, y, svc, param_grid, cv, verbose)
 
 	# save dataframe
-	df.to_csv('../output/SVM_{}.csv'.format(data_char), index=False)
+	df.to_csv('../output/{}_SVM.csv'.format(data_char), index=False)
 
 	# plot results
 	suptitle = 'Support Vector Machine with dataset characteristics {}\n \
 	            Accuracy and computation time with respect to gamma'.format(data_char)
 	axtitle = 'SVM with C = {}'
-	figtitle = '../output/plots/SVM_{}.pdf'.format(data_char)
+	figtitle = '../output/plots/{}_SVM.pdf'.format(data_char)
 	plot_2param(df, 'gamma', 'C', suptitle, axtitle, figtitle, 'Gamma')
 
 
@@ -169,12 +169,12 @@ def grid_search_LogReg(X, y, data_char, cv, seed, verbose=0):
 	df = grid_search(X, y, lr, param_grid, cv, verbose)
 
 	# save dataframe
-	df.to_csv('../output/LogReg_{}.csv'.format(data_char), index=False)
+	df.to_csv('../output/{}_LogReg.csv'.format(data_char), index=False)
 
 	# plot results
 	suptitle = 'Logistic Regression with dataset characteristics {}'.format(data_char)
 	axtitle = 'Accuracy and computation time with respect to regularization parameter C'
-	figtitle = '../output/plots/LogReg_{}.pdf'.format(data_char)
+	figtitle = '../output/plots/{}_LogReg.pdf'.format(data_char)
 	plot_1param(df, 'C', suptitle, axtitle, figtitle, 'C')
 
 
@@ -210,13 +210,13 @@ def grid_search_RF(X, y, data_char, cv, seed, verbose=0):
 	df['max_depth'] = df['max_depth'].astype(int)
 
 	# save dataframe
-	df.to_csv('../output/RF_{}.csv'.format(data_char), index=False)
+	df.to_csv('../output/{}_RF.csv'.format(data_char), index=False)
 
 	# plot results
 	suptitle = 'Random Forest with dataset characteristics {}'.format(data_char) \
 			+ '\nAccuracy and computation time with respect to maximum tree depth'
 	axtitle = 'Forest of size {}'
-	figtitle = '../output/plots/RF_{}.pdf'.format(data_char)
+	figtitle = '../output/plots/{}_RF.pdf'.format(data_char)
 	plot_2param(df, 'max_depth', 'n_estimators', suptitle, axtitle, figtitle, 'Maximum depth')
 
 
@@ -249,10 +249,10 @@ def grid_search_NN(X, y, data_char, cv, seed, verbose=0):
 	df['hidden_layer_sizes'] = list(map(lambda x:x[0], df['hidden_layer_sizes']))
 
 	# save dataframe
-	df.to_csv('../output/NN_{}.csv'.format(data_char), index=False)
+	df.to_csv('../output/{}_NN.csv'.format(data_char), index=False)
 
 	# plot results
 	suptitle = 'Neural Network with dataset characteristics {}'.format(data_char)
 	axtitle = 'Accuracy and computation time with respect to hidden layer size'
-	figtitle = '../output/plots/NN_{}.pdf'.format(data_char)
+	figtitle = '../output/plots/{}_NN.pdf'.format(data_char)
 	plot_1param(df, 'hidden_layer_sizes', suptitle, axtitle, figtitle, "Number of nodes in the hidden layer")
