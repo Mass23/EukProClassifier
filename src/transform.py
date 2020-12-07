@@ -6,7 +6,8 @@ with respect to three differents metrics :
 – the frequencies of each k-mer
 – the clr transformation of the frequencies
 – the K-means transformation of the frequencies
-We use the raw dataset with k = 5.
+We use the raw dataset with k = 5. The accuracies and timings are
+measured using cross validation.
 """
 
 import numpy as np

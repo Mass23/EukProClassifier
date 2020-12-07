@@ -22,23 +22,26 @@ FILENAME = "../data/Counts_n10000_k5_s5000.csv"
 
 seed = 63
 cv = 5
-#######################################
-cv = 2
-#######################################
 verbose = 2
 
-
-### to adapt to final transform
+#######################################
+cv = 2
 y, X, _ = load_csv_data(FILENAME)
 X, y = X[:100], y[:100]
 data_char = 'freq_k5'
+#######################################
 
+# define X, y and data_char for the correct transformation for linSVC
 grid_search_linSVC(X, y, data_char, cv, seed, verbose)
 
+# define X, y and data_char for the correct transformation for SVC
 grid_search_SVC(X, y, data_char, cv, seed, verbose)
 
+# define X, y and data_char for the correct transformation for LogReg
 grid_search_LogReg(X, y, data_char, cv, seed, verbose)
 
+# define X, y and data_char for the correct transformation for RF
 grid_search_RF(X, y, data_char, cv, seed, verbose)
 
+# define X, y and data_char for the correct transformation for NN
 grid_search_NN(X, y, data_char, cv, seed, verbose)
