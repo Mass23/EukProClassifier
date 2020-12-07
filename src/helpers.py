@@ -13,8 +13,6 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
 
-from time import time
-
 
 def load_csv_data(data_path, n_min=1000):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""

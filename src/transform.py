@@ -27,8 +27,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
-from time import time
-
 
 FILENAME = "../data/Counts_n10000_k5_s5000.csv"
 
