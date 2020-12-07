@@ -70,8 +70,11 @@ def kmeans_optimisation(X, y, method, scoring, cv, seed, verbose=0):
     best_k = 0
     best_bal_acc, best_euk_acc, best_pro_acc = 0, 0, 0
     best_learn_time, best_predi_time = 0, 0
+    
+    # test 16 different k values, linearly in the space n_features//16 to n_features
+    k_list = np.arange(start=X.shape[1]//16, stop=X.shape[1], step=X.shape[1]//16)
 
-    for k in [64, 128, 256, 512]:
+    for k in k_list:
         if verbose:
             print('  - K-means, k = ' + str(k))
 
