@@ -2,6 +2,9 @@
 RF.py
 tmp_plots/
 Counts_n10000_k5_s5000.csv
+# *.csv
+# *.pdf
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
