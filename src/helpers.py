@@ -70,7 +70,7 @@ def kmeans_optimisation(X, y, method, scoring, cv, seed, verbose=0):
     best_k = 0
     best_bal_acc, best_euk_acc, best_pro_acc = 0, 0, 0
     best_learn_time, best_predi_time = 0, 0
-    
+
     # test 16 different k values, linearly in the space n_features//16 to n_features
     k_list = np.arange(start=X.shape[1]//16, stop=X.shape[1], step=X.shape[1]//16)
 
@@ -83,7 +83,7 @@ def kmeans_optimisation(X, y, method, scoring, cv, seed, verbose=0):
         kX = create_kmeans_data(X, kmeans.labels_)
 
         # evalutate the resulting dataset on method
-        scores = cross_validate(method, X, y, cv=cv, verbose=verbose, scoring=scoring)
+        scores = cross_validate(method, kX, y, cv=cv, verbose=verbose, scoring=scoring)
         res = {i:np.mean(scores[i]) for i in scores.keys()}
 
         # keep the best number of clusters
