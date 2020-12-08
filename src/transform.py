@@ -75,7 +75,7 @@ for m in methods:
 			transfo = t + '(k=' + str(best_k) + ')'
 		else:
 			X, y = datas[t]
-			scores = cross_validate(clf, X, y, cv=cv, verbose=verbose, scoring=scorings)
+			scores = cross_validate(clf, X, y, cv=cv, verbose=verbose, scoring=scorings, n_jobs=cv)
 			res = {i:np.mean(scores[i]) for i in scores.keys()}
 
 			bal_acc = res['test_accuracy']
