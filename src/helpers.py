@@ -83,7 +83,7 @@ def kmeans_optimisation(X, y, method, scoring, cv, seed, verbose=0):
         kX = create_kmeans_data(X, kmeans.labels_)
 
         # evalutate the resulting dataset on method
-        scores = cross_validate(method, kX, y, cv=cv, verbose=verbose, scoring=scoring)
+        scores = cross_validate(method, kX, y, cv=cv, verbose=verbose, scoring=scoring, n_jobs=cv)
         res = {i:np.mean(scores[i]) for i in scores.keys()}
 
         # keep the best number of clusters
