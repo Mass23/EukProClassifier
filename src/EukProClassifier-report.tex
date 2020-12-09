@@ -1,0 +1,110 @@
+\documentclass{article}
+
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hhline}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{multicol}
+\usepackage{wrapfig}
+
+
+\renewcommand{\arraystretch}{2}
+\geometry{
+	a4paper,
+	total={170mm,257mm},
+	left=20mm,
+	top=20mm,
+}
+
+
+\begin{document}
+	\title{Benchmarking Machine Learning Methods for Eukaryote/Prokaryote Contigs Classification }
+	
+	\author{Massimo Bourquin \and Anita D\" urr \and Natasa Kr\v co}
+	
+	\maketitle
+	
+	\begin{abstract}
+		This is the abstract
+	\end{abstract}
+	
+	\begin{multicols}{2}
+		
+		\section{Introduction}	
+		
+		In the past few years, the advent of metagenomics has had an important impact on biology, helping to understand many biological problems, e.g. disease prediction based on gut microbiome data, drinking water quality assessment or even environmental research focused on understanding ecosystems. In the standard metagenomic pipeline, binning is a key step, allowing in the end to retrieve Metagenome Assembled Genomes (MAGs), and thus to link functional discoveries with taxonomy. An important step that relies a lot on the domain classification of the assembled contigs into the prokaryote and eukaryote groups. 
+		
+		The NOMIS project aims to create a global-scale census of life inhabiting Glacier-fed streams (GFS) using metagenomics. Our understanding of this ecosystem, as well as visual and laboratory results-based cues hint for the presence of Eukaryotic metagenomes in GFS samples. However, the current method for detecting eukaryotic contigs fails to assign enough of them in these metagenomes, due to the complicated nature of sequencing samples. This project is based on, and aims to improve on the EukRep method developed by West et al. (2017). This method reported an accuracy  of  > 97.5% using a linearSVC trained on 5-mer frequencies and a custom database, and was then applied to environmental metagenomes successfully. Maybe an introduction to kmers?
+		
+		In this project, we aim to improve and optimise the method developed by West et al. (2017), in order to retrieve eukaryotic MAGs in GFS metagenomes. For this, we propose multiple improvements. First, the training dataset is based on the much larger NCBI genomes database (30’000+ genomes), spanning a larger diversity of species than the subset of genomes (n=482) found on NCBI/JGI used in the original work. We furthermore process the data in different ways before using it to train the methods. Secondly, we will test more methods than just the LinearSVC. Logistic regression, SVM, Random Forest and the Multi-Layer Perceptron (MLP) neural network available in the Sklearn package will also be assessed. Finally, we are comparing different k-mer sizes (k = 1 to 6). This will allow us to benchmark the current speed-oriented LinearSVC method to other methods in terms of accuracy and computation time. More robust accuracy-oriented methods will also be developed. This later criterion could help retrieve eukaryotic MAGs in complicated samples such as the GFS ones.
+		
+		\section{Methods}
+		
+		In this project, we use the scikit-learn machine learning package in order to build on the previous method by West et al. (2017) that uses its LinearSVC function, This is also motivated by reproducibility purposes. Before fine-tuning the parameters of each method in section ??, we compare different data processing steps in section ??. The tuning of each method will be done using the optimized dataset found. Finally, we study the influence of the k-mer size in section ??.  
+		
+		
+		\subsection{Data Transformations}
+		
+		The first part of our work consists of comparing different transformations that can be done to the raw $5$-mer dataset.
+		
+		The raw dataset contains for each DNA sequence (datapoint) the number of appearances of each $k$-mer (features). Firstly, we remove the rows that contain less than $1000$ k-mers. Those datapoints are not relevant for statistical results.
+		
+		The number of appearances of each $k$-mer has then to be transformed into a normalised measure. The most natural one is to compute the frequencies of each $k$-mer for a given datapoint. This constitutes our first transformation of the data, and will be used for both following transformations.
+		
+		Another common transformation is to apply the Centered Log-ratio Transform (CLR). This transforms the data point $x = [x_1, …, x_n]$ into $CLR(x) = [log(x_1) - log(mean(x)), … log(x_n) - log(mean(x))]$. We apply the CLR on the data, after having transformed the counts into frequencies. In order to apply this, we first make sure that all features are positive values by replacing all non positive values by the lowest positive value.
+		
+		Finally, notice that we have $4^k$ features in a dataset of $k$-mers. As we have such a large number of features, we don’t want to apply a feature expansion. Instead, it would be interesting to get a lower number of features. There is no particular reason to remove some $k$-mers while keeping others, which is why we apply $K$-means on the frequency-measuring data. This clustering method will reduce the number of features by regrouping them. Note that we write small $k$ for the $k$-mer and big $K$ for $K$-means. The number of clusters $K$ has to be tuned. For this, we apply different $K$-means for $K = 64, 128, 256 and 512$. Each method is then trained with these and we keep only the $K$ giving the highest global accuracy.
+		
+		To evaluate the pertinence of each transformation, we use the respective datasets to train the different scikit-learn methods : LinearSVC, SVM, LogisticRegression, RandomForest and the Multi-Layer Perceptron neural network. At this point, we only want to roughly compare them, so using the default parameters is enough. For the logistic regression though, we use a penalising parameter $C$ very big, so that no penalisation is applied. The unpenalised logistic regression is specially designed for binary classification and we already saw in the first project of this class that it gives better results than the penalised one. Our hypothesis here is that for the $k$-mer dataset the results are the same. This will be confirmed in the next section when we fine-tune the hyper-parameters of each method.
+		
+		To compare the methods trained with different transformed datasets, we compute their accuracy over the whole data as well as for each class individually. We are also timing the learning and the prediction time separately. In the end we are able to identify methods and corresponding transformed datasets that respond to each evaluation criterion: speed-oriented or accuracy-oriented method.
+		
+		\subsection{Fine-tuning of each method}
+		
+		We will tune hyperparameters on each method, using the best transforms. The table below shows which methods we will try, and the ranges we will use for each parameter. We will use grid search and cross-validation to search through and evaluate values for the hyperparameters, specifically GridSearchCV from the sklearn package. We will keep track of overall accuracy, accuracy for each class, learning time, and prediction time in a pandas dataframe, which we will then use to plot the results of the tuning, and manually choose the best methods and parameters according to accuracy and prediction and learning time.
+		
+	%	$$
+	%	\begin{array}{c|c|c}
+	%	\text{Method} & \text{Parameter} & \text{Parameter} \\
+	%	\hline
+	%	\text{LinearSVC} & C \in [10^{-2}, 10^{10}] & / \\
+	%	\text{SVM (RBF kernel)} & C \in [10^{-2}, 10^2] & \gamma \in [10^{-3}, 10^2] \\
+	%	\text{Logistic Regression} & C \in [1, 10^3] & / \\
+	%	\text{Multi-Layer Perceptron} & \text{hidden\_layer\_size }\in [50, 500] & / \\	
+	%	\text{Random Forests} & \text{nb\_trees} \in \{20, 80, 100, 150, 200\} & \text{depths} \in \{ 5, 10, 15, 20, 35, 50 \} \\	
+	%	\end{array}
+	%	$$
+		%
+		\begin{table*}[h]
+			\centering
+			\begin{tabular}{c|c|c}
+				Method & Parameter $1$ & Parameter $2$ \\
+				\hline
+				LinearSVC & $C \in [10^{-2}, 10^{10}]$ & / \\
+				SVM (RBF kernel) & $C \in [10^{-2}, 10^2]$ & $ \gamma \in [10^{-3}, 10^2]$ \\
+				Logistic Regression    & $ C \in [1, 10^3]$ & / \\
+				Multi-Layer Perceptron   & hidden\_layer\_size$\in [50, 500]$ & / \\
+				Random Forests & nb\_trees$\in \{20, 80, 100, 150, 200\}$ & depths$\in \{ 5, 10, 15, 20, 35, 50 \}$ \\
+				\hline
+			\end{tabular}
+			\caption{Methods and parameters to tune}
+			\label{table:ta}
+		\end{table*}
+		
+		\subsection{Influence of $k$-mer size}
+		
+		We study the influence of the size of k-mers. For each size k=1...6, we select for each method the best one according to the same algorithm as the one used in the Data Transformation part. 
+		
+		
+		
+	\end{multicols}
+
+	
+	
+
+\end{document}
